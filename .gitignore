@@ -1,0 +1,8 @@
+# 秘匿情報
+config.json
+token.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
