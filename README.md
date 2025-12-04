@@ -54,7 +54,50 @@ chmod +x freee_kintai.py
 ./freee_kintai.py info
 ```
 
-一覧から事業所と自分を選択
+一覧から事業所と自分を選択。
+
+#### 従業員一覧の取得に権限エラーが出る場合
+
+会社の設定によっては従業員一覧APIへのアクセス権限がない場合があります。
+その場合、`/users/me` APIから自分の従業員IDを取得できます：
+
+```bash
+# token.jsonからアクセストークンを取得
+ACCESS_TOKEN=$(jq -r '.access_token' ~/scripts/freee-kintai/token.json)
+
+# ユーザー情報を取得 (employee_idが含まれる)
+curl -s "https://api.freee.co.jp/hr/api/v1/users/me" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" | jq .
+```
+
+レスポンス例:
+```json
+{
+  "id": 12345678,
+  "companies": [
+    {
+      "id": 1234567,
+      "name": "株式会社○○",
+      "role": "self_only",
+      "employee_id": 9876543,
+      "display_name": "山田 太郎"
+    }
+  ]
+}
+```
+
+`companies[].id` が事業所ID、`companies[].employee_id` が従業員IDです。
+
+取得したIDを `config.json` に手動で設定：
+
+```json
+{
+  "client_id": "あなたのCLIENT_ID",
+  "client_secret": "あなたのCLIENT_SECRET",
+  "company_id": 1234567,
+  "employee_id": 9876543
+}
+```
 
 ## 使い方
 
