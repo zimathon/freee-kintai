@@ -28,7 +28,6 @@ freee人事労務の勤怠打刻をCLIから行うツール
 ```bash
 git clone git@github.com:zimathon/freee-kintai.git ~/scripts/freee-kintai
 cd ~/scripts/freee-kintai
-chmod +x freee_kintai.py
 ```
 
 ### 3. 初期設定
