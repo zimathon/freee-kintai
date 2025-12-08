@@ -263,12 +263,12 @@ def cmd_clock_out(args):
     _clock("clock_out", "退勤")
 
 
-def cmd_break_begin(args):
+def cmd_break_in(args):
     """休憩開始"""
     _clock("break_begin", "休憩開始")
 
 
-def cmd_break_end(args):
+def cmd_break_out(args):
     """休憩終了"""
     _clock("break_end", "休憩終了")
 
@@ -413,8 +413,8 @@ def cmd_available(args):
     type_labels = {
         "clock_in": "出勤 (in)",
         "clock_out": "退勤 (out)",
-        "break_begin": "休憩開始 (break-begin)",
-        "break_end": "休憩終了 (break-end)",
+        "break_begin": "休憩開始 (break-in)",
+        "break_end": "休憩終了 (break-out)",
     }
 
     print("=== 現在打刻可能な種別 ===\n")
@@ -437,8 +437,8 @@ def main():
   %(prog)s info        # 事業所ID・従業員ID取得
   %(prog)s in          # 出勤打刻
   %(prog)s out         # 退勤打刻
-  %(prog)s break-begin # 休憩開始
-  %(prog)s break-end   # 休憩終了
+  %(prog)s break-in   # 休憩開始
+  %(prog)s break-out  # 休憩終了
   %(prog)s status      # 今日の打刻状況
   %(prog)s available   # 打刻可能な種別
         """,
@@ -451,8 +451,8 @@ def main():
     subparsers.add_parser("info", help="事業所ID・従業員ID取得")
     subparsers.add_parser("in", help="出勤打刻")
     subparsers.add_parser("out", help="退勤打刻")
-    subparsers.add_parser("break-begin", help="休憩開始")
-    subparsers.add_parser("break-end", help="休憩終了")
+    subparsers.add_parser("break-in", help="休憩開始")
+    subparsers.add_parser("break-out", help="休憩終了")
     status_parser = subparsers.add_parser("status", help="打刻状況")
     status_parser.add_argument("-y", "--yesterday", action="store_true", help="昨日の状況")
     status_parser.add_argument("-d", "--date", type=str, help="日付指定 (YYYY-MM-DD)")
@@ -466,8 +466,8 @@ def main():
         "info": cmd_info,
         "in": cmd_clock_in,
         "out": cmd_clock_out,
-        "break-begin": cmd_break_begin,
-        "break-end": cmd_break_end,
+        "break-in": cmd_break_in,
+        "break-out": cmd_break_out,
         "status": cmd_status,
         "available": cmd_available,
     }
