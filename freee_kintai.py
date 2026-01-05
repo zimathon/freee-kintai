@@ -369,17 +369,70 @@ def cmd_status(args):
         "break_end": "休憩終了",
     }
 
+    # 打刻記録を表示しつつ、稼働時間計算用のデータを収集
+    clock_in_time = None
+    clock_out_time = None
+    break_periods = []  # (開始, 終了) のリスト
+    current_break_start = None
+
     for clock in items:
         clock_type = clock.get("type", "unknown")
         label = type_labels.get(clock_type, clock_type)
         clock_time = clock.get("datetime", "")
+        dt = None
         if clock_time:
             try:
                 dt = datetime.fromisoformat(clock_time.replace("Z", "+00:00"))
                 clock_time = dt.strftime("%H:%M:%S")
             except ValueError:
                 pass
+
         print(f"  {label}: {clock_time}")
+
+        # 稼働時間計算用にデータを収集
+        if dt:
+            if clock_type == "clock_in":
+                clock_in_time = dt
+            elif clock_type == "clock_out":
+                clock_out_time = dt
+            elif clock_type == "break_begin":
+                current_break_start = dt
+            elif clock_type == "break_end" and current_break_start:
+                break_periods.append((current_break_start, dt))
+                current_break_start = None
+
+    # 稼働時間を計算
+    print()
+    if clock_in_time:
+        end_time = clock_out_time if clock_out_time else datetime.now(clock_in_time.tzinfo)
+        total_time = end_time - clock_in_time
+
+        # 休憩時間を計算
+        total_break = timedelta()
+        for break_start, break_end in break_periods:
+            total_break += break_end - break_start
+
+        # 休憩中の場合
+        if current_break_start:
+            total_break += datetime.now(clock_in_time.tzinfo) - current_break_start
+
+        # 実稼働時間
+        working_time = total_time - total_break
+
+        # 時間を見やすい形式に変換
+        def format_duration(td):
+            total_seconds = int(td.total_seconds())
+            hours, remainder = divmod(total_seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            return f"{hours}時間{minutes}分"
+
+        if clock_out_time:
+            print(f"  稼働時間: {format_duration(working_time)}")
+        else:
+            print(f"  稼働時間: {format_duration(working_time)} (勤務中)")
+
+        if total_break.total_seconds() > 0:
+            print(f"  休憩時間: {format_duration(total_break)}")
 
 
 def cmd_available(args):
